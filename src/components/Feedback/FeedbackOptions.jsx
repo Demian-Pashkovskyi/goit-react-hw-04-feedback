@@ -8,7 +8,7 @@ export const FeedbackOptions = ({ options, onSendFeedback }) => {
 			{options.map((option) => {
 				return (
 					<BtnItem key={option}>
-						<Btn onClick={() => onSendFeedback(option)} type="button" name={option} key={option}>{option.charAt(0).toUpperCase()+option.slice(1)}</Btn>
+						<Btn onClick={onSendFeedback} type="button" name={option} key={option}>{option.charAt(0).toUpperCase()+option.slice(1)}</Btn>
 					</BtnItem>
 				);
 			})}

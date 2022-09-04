@@ -1,63 +1,74 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { Box } from './Styled/Box';
 import { Statistics } from './Statistics/Statistics';
 import { FeedbackOptions } from './Feedback/FeedbackOptions';
 import { Section } from './Section/Section';
 import { Notification } from './Notification/Notification';
 
-export class App extends Component {
 
-	state = {
-    good: 0,
-    neutral: 0,
-    bad: 0
+export const App = () => {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
+  const isNoFeedback = !good && !neutral && !bad;
+
+  const changeStat = evt => {
+    const statName = evt.target.name;
+
+    switch (statName) {
+      case 'good':
+        setGood(prevValue => prevValue + 1);
+        break;
+
+      case 'neutral':
+        setNeutral(prevValue => prevValue + 1);
+        break;
+
+      case 'bad':
+        setBad(prevValue => prevValue + 1);
+        break;
+
+      default:
+        throw new Error('No such option');
+    }
   };
 
-	hendlerIncrement = key => {
-    this.setState(prevState => ({
-      [key]: prevState[key] + 1,
-    }));
-  }
+  const countTotalFeedback = () => {
+    return [good, neutral, bad].reduce((acc, num) => acc + num, 0);
+  };
 
-	countTotalFeedback = () => { 
-    const totalFeeds = Object.values(this.state).reduce((acc, feed) => acc + feed, 0);
-    return totalFeeds;
-    };
+  const countPositiveFeedbackPercentage = () => {
+    return Math.round((good / countTotalFeedback()) * 100);
+  };
 
-		countPositiveFeedbackPercentage = () => {
-    let positiveValue = this.state.good / this.countTotalFeedback() * 100;
-    return Math.round(positiveValue);
-    };	
-
-	render () {
-			const { good, neutral, bad } = this.state;
-			return (
-				<Box
+  return (
+    <Box
         display="flex"
         flexDirection="column"
         listStyle="none"
         mr="20px"
         mt="20px"
         p="0">
-					<Section 
-					title='Please leave feedback'>
-					<FeedbackOptions options={ Object.keys(this.state) } onSendFeedback={this.hendlerIncrement} />
-					</Section>
+      <Section title="Please leave feedback">
+        <FeedbackOptions
+          options={['good', 'neutral', 'bad']}
+          onSendFeedback={changeStat}
+        />
+      </Section>
 
-					<Section title={"Statistics"}>
-					{this.countTotalFeedback() ? (
-						<Statistics
-						good={good}
-						neutral={neutral}
-						bad={bad}
-						total={this.countTotalFeedback()}
-						positiveValue={this.countPositiveFeedbackPercentage()}
-						/>
-					) : (
-						<Notification message={"There is no feedback"} />
-					)}
-					</Section>
-				</Box>
-			);
-	}
+      <Section title="Statistics">
+        {isNoFeedback ? (
+          <Notification message="There is no feedback" />
+        ) : (
+          <Statistics
+            good={good}
+            neutral={neutral}
+            bad={bad}
+            total={countTotalFeedback()}
+            positiveValue={countPositiveFeedbackPercentage()}
+          />
+        )}
+      </Section>
+    </Box>
+  );
 };
